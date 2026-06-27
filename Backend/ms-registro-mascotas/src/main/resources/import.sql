@@ -1,0 +1,14 @@
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (1, 'Luka', 'Perro', 'Disponible', 'Puerto Montt') ON CONFLICT (id) DO NOTHING;
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (2, 'Lia', 'Gato', 'En refugio', 'Pta Sur') ON CONFLICT (id) DO NOTHING;
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (3, 'Kitty', 'Gato', 'Disponible', 'Alerce') ON CONFLICT (id) DO NOTHING;
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (4, 'Kira', 'Perro', 'Disponible', 'Pelluco') ON CONFLICT (id) DO NOTHING;
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (5, 'Bobby', 'Perro', 'En refugio', 'Mirasol') ON CONFLICT (id) DO NOTHING;
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (6, 'Dominique', 'Gato', 'Disponible', 'Mirasol') ON CONFLICT (id) DO NOTHING;
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (7, 'Bob', 'Perro', 'Urgente', 'Mirasol') ON CONFLICT (id) DO NOTHING;
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (8, 'Kira_A', 'Perro', 'En refugio', 'Mirasol') ON CONFLICT (id) DO NOTHING;
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (9, 'Dominga', 'Perro', 'Urgente', 'Mirasol') ON CONFLICT (id) DO NOTHING;
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (482, 'Toby', 'Perro', 'En refugio', 'Pelluco') ON CONFLICT (id) DO NOTHING;
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (483, 'Luna', 'Gato', 'Adoptada', 'Centro') ON CONFLICT (id) DO NOTHING;
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (484, 'Copito', 'Perro', 'Disponible', 'Alerce') ON CONFLICT (id) DO NOTHING;
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (485, 'Mango', 'Gato', 'En refugio', 'Mirasol') ON CONFLICT (id) DO NOTHING;
+INSERT INTO mascotas (id, nombre, especie, estado, zona) VALUES (486, 'Rocco', 'Perro', 'Urgente', 'Costanera') ON CONFLICT (id) DO NOTHING;

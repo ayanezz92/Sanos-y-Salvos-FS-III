@@ -1,0 +1,4 @@
+INSERT INTO adopciones (id, mascota_id, adoptante, estado, fecha) VALUES (12, 483, 'Familia Soto', 'Aprobada', '2026-04-19') ON CONFLICT (id) DO NOTHING;
+INSERT INTO adopciones (id, mascota_id, adoptante, estado, fecha) VALUES (13, 482, 'M. Reyes', 'En proceso', '2026-04-20') ON CONFLICT (id) DO NOTHING;
+INSERT INTO adopciones (id, mascota_id, adoptante, estado, fecha) VALUES (14, 485, 'C. Vega', 'En proceso', '2026-04-21') ON CONFLICT (id) DO NOTHING;
+INSERT INTO adopciones (id, mascota_id, adoptante, estado, fecha) VALUES (15, 484, 'Familia Pérez', 'Rechazada', '2026-04-18') ON CONFLICT (id) DO NOTHING;

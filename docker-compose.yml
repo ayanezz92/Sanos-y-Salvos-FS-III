@@ -1,0 +1,282 @@
+version: '3.8'
+services:
+
+  # =====================================================================
+  # 🧱 CAPA DE INFRAESTRUCTURA, PERSISTENCIA Y MENSAJERÍA
+  # =====================================================================
+
+  sanos_y_salvos_postgres:
+    image: postgres:15-alpine
+    container_name: sanos_y_salvos_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d postgres" ]
+      interval: 3s  # Revisa cada 3 segundos al inicio
+      timeout: 3s
+      retries: 10   # Le da bastantes intentos para asegurar el inicio
+    networks:
+      - sanos_salvos_network
+
+  sanos_y_salvos_rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: sanos_y_salvos_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitdata:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - sanos_salvos_network
+
+  sanos_y_salvos_redis:
+    image: redis:7-alpine
+    container_name: sanos_y_salvos_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - sanos_salvos_network
+
+  sanos_y_salvos_redisinsight:
+    image: redis/redisinsight:latest
+    container_name: sanos_y_salvos_redisinsight
+    ports:
+      - "8001:8001"
+    volumes:
+      - redisinsight_data:/data
+    depends_on:
+      sanos_y_salvos_redis:
+        condition: service_healthy
+    networks:
+      - sanos_salvos_network
+
+  # =====================================================================
+  # 🌐 SERVIDORES CORE DE LA TOPOLOGÍA DISTRIBUIDA
+  # =====================================================================
+
+  eureka-server:
+    build:
+      context: ./Backend/sanosysalvos
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sanos_salvos_network
+
+  api-gateway:
+    build:
+      context: ./Backend/api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      sanos_y_salvos_postgres:
+        condition: service_healthy
+    networks:
+      - sanos_salvos_network
+
+  # =====================================================================
+  # ⚙️ MICROSERVICIOS DE NEGOCIO (CONEXIÓN SEGURA A LA RED INTEGRADA)
+  # =====================================================================
+
+  ms-usuarios:
+    build:
+      context: ./Backend/ms-usuarios
+    container_name: ms-usuarios
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://sanos_y_salvos_postgres:5432/db_usuarios
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      sanos_y_salvos_postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - sanos_salvos_network
+
+  ms-adopciones:
+    build:
+      context: ./Backend/ms-adopciones
+    container_name: ms-adopciones
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://sanos_y_salvos_postgres:5432/db_adopciones
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      sanos_y_salvos_postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - sanos_salvos_network
+
+  ms-coincidencias:
+    build:
+      context: ./Backend/ms-coincidencias
+    container_name: ms_coincidencias_app
+    ports:
+      - "8083:8083"
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - sanos_salvos_network
+
+  ms-geolocalizacion:
+    build:
+      context: ./Backend/ms-geolocalizacion
+    container_name: ms-geolocalizacion
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATA_REDIS_HOST=sanos_y_salvos_redis
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      sanos_y_salvos_redis:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - sanos_salvos_network
+
+  ms-donaciones:
+    build:
+      context: ./Backend/ms-donaciones
+    container_name: ms_donaciones_app
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://sanos_y_salvos_postgres:5432/db_donaciones
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      sanos_y_salvos_postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - sanos_salvos_network
+
+  ms-registro-mascotas:
+    build:
+      context: ./Backend/ms-registro-mascotas
+    container_name: ms-registro-mascotas
+    ports:
+      - "8086:8086"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://sanos_y_salvos_postgres:5432/db_mascotas
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      sanos_y_salvos_postgres:
+        condition: service_healthy # Espera a que el healthcheck de arriba pase
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - sanos_salvos_network
+
+  ms-historial:
+    build:
+      context: ./Backend/ms-historial
+    container_name: ms-historial
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://sanos_y_salvos_postgres:5432/db_historial
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      sanos_y_salvos_postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - sanos_salvos_network
+
+  ms-notificaciones:
+    build:
+      context: ./Backend/ms-notificaciones
+    container_name: ms-notificaciones
+    ports:
+      - "8088:8088"
+    environment:
+      - SPRING_RABBITMQ_HOST=sanos_y_salvos_rabbitmq
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      sanos_y_salvos_rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - sanos_salvos_network
+
+  ms-reportes:
+    build:
+      context: ./Backend/ms-reportes
+    container_name: ms-reportes
+    ports:
+      - "8089:8089"
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - sanos_salvos_network
+
+  ms-organizacion:
+    build:
+      context: ./Backend/ms-organizacion
+    container_name: ms-organizacion
+    ports:
+      - "8090:8090"
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - sanos_salvos_network
+
+# =====================================================================
+# 💾 DECLARACIÓN GLOBAL DE VOLÚMENES Y RED CON DRIVER BRIDGE
+# =====================================================================
+volumes:
+  pgdata:
+  rabbitdata:
+  redisdata:
+  redisinsight_data:
+
+networks:
+  sanos_salvos_network:
+    driver: bridge
