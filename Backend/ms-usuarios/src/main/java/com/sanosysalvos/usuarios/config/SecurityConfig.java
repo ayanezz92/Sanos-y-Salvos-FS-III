@@ -25,7 +25,8 @@ public class SecurityConfig {
 
                 // Control de autorizacion de rutas de entrada
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/usuarios/login").permitAll() // 👈 Liberar acceso publico obligatorio
+                        // 👈 LIBERAMOS COMPLETAMENTE EL PREFIJO DE TU CONTROLADOR (/api/usuarios/registrar, /api/usuarios/login, etc.)
+                        .requestMatchers("/api/usuarios/**").permitAll()
                         .anyRequest().authenticated() // Bloquear cualquier otro endpoint corporativo
                 )
                 .build();

@@ -3,7 +3,7 @@ import { apiFetch } from "./api";
 export const usuariosService = {
     // Obtener todos los usuarios registrados en el sistema
     obtenerTodos: async () => {
-        return await apiFetch("/api/usuarios");
+        return await apiFetch("/api/usuarios/listar"); // 👈 Cambiado de /api/usuarios a /api/usuarios/listar
     },
 
     // Obtener un usuario específico por su ID
@@ -11,9 +11,10 @@ export const usuariosService = {
         return await apiFetch(`/api/usuarios/${id}`);
     },
 
-    // Registrar un nuevo usuario (idealmente desde el panel de administrador)
+    // Registrar un nuevo usuario
     registrar: async (datosUsuario) => {
-        return await apiFetch("/api/usuarios", {
+        // 🚨 CORREGIDO: Ahora apunta exactamente al endpoint de tu controlador Java
+        return await apiFetch("/api/usuarios/registrar", {
             method: "POST",
             body: JSON.stringify(datosUsuario),
         });

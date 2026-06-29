@@ -15,9 +15,16 @@ public class Usuario {
     @Column(unique = true, nullable = false)
     private String email;
 
+    // 🚨 CORREGIDO: Mapea la variable 'contrasena' con la columna real 'password' de DBeaver
+    @Column(name = "password", nullable = false)
     private String contrasena;
+
     private String rol; // "ADMIN", "VETERINARIO", "OPERADOR"
-    private String sucursal; // ej: "Puerto Montt"
+
+    // 🚨 CORREGIDO: @Transient le dice a Hibernate que ignore este campo al guardar en la BD,
+    // ya que la columna 'sucursal' no existe en tu tabla de DBeaver actualmente.
+    @Transient
+    private String sucursal;
 
     // Constructor Vacío
     public Usuario() {}

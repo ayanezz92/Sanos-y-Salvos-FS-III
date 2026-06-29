@@ -1,25 +1,47 @@
 server:
-  port: 8082
+  port: 8081
 
 spring:
   application:
     name: ms-usuarios
+
+  # 🔌 Configuración del origen de datos (Mapeado dinámico para Docker o Local)
   datasource:
-    url: jdbc:postgresql://sanos_y_salvos_db:5432/sanosysalvos_db
-    username: agustin
-    password: password123
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/db_usuarios}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
+
+  # 🗄️ Configuración de JPA e Hibernate (Con formateo de SQL activado)
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+    defer-datasource-initialization: true # Ejecuta la inicialización SQL después de Hibernate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
 
+  # ⚙️ Inicializador SQL (Migrado de tu properties)
+  sql:
+    init:
+      mode: never
+      separator: "//"
+
+  # 🐇 Configuración del Broker de Mensajería RabbitMQ
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${SPRING_RABBITMQ_USERNAME:guest}
+    password: ${SPRING_RABBITMQ_PASSWORD:guest}
+
+# 🌐 Registro e integración en el Servidor Eureka
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
   instance:
     prefer-ip-address: true
+
+

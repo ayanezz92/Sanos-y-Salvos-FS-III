@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { User, Mail, Lock, Sparkles, ArrowRight, Eye, EyeOff, Heart, PawPrint } from "lucide-react";
 import { toast } from "sonner";
+import { usuariosService } from "../services/usuariosService"; // 👈 IMPORTACIÓN DEL SERVICIO REAL
 
 // Importación segura de tu logo local
 import logo from "../assets/logo.png";
@@ -19,7 +20,7 @@ const Login = () => {
         aceptaTerminos: false,
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!form.email.trim() || !form.password) {
@@ -34,17 +35,46 @@ const Login = () => {
 
         setLoading(true);
 
-        // Simulación asíncrona local mapeada para tu ms-usuarios
-        setTimeout(() => {
-            setLoading(false);
+        try {
             if (isSignUp) {
-                toast.success(`¡Registro exitoso! Bienvenido a la red de cuidado, ${form.nombre}.`);
+                // 🚨 REGISTRO REAL EN EL MICROSERVICIO (Puerto 8081)
+                await usuariosService.registrar({
+                    nombre: form.nombre,
+                    email: form.email,
+                    contrasena: form.password, // Coincide con tu variable en Java
+                    rol: "OPERADOR",           // Rol comunitario asignado por defecto
+                    sucursal: "Puerto Montt"
+                });
+
+                toast.success(`¡Registro exitoso! Cuenta creada para ${form.nombre}. Ya puedes iniciar sesión.`);
+                // Limpiar campos y pasar a vista de Login
+                setForm({ nombre: "", email: "", password: "", aceptaTerminos: false });
                 setIsSignUp(false);
             } else {
-                toast.success("¡Sesión iniciada correctamente!");
+                // 🚨 LOGIN REAL EN EL MICROSERVICIO (Opcional, usando fetch directo si no está mapeado)
+                const response = await fetch("http://localhost:8081/api/usuarios/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email: form.email,
+                        contrasena: form.password
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Credenciales inválidas o usuario inexistente.");
+                }
+
+                const data = await response.json();
+                toast.success(`¡Sesión iniciada! Bienvenido/a ${data.nombre || ""}`);
                 navigate("/inicio", { replace: true });
             }
-        }, 900);
+        } catch (error) {
+            console.error("Error en autenticación:", error);
+            toast.error(error.message || "Ocurrió un error de conexión con el servidor.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

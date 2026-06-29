@@ -94,7 +94,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -115,7 +115,7 @@ services:
       - "8081:8081"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://sanos_y_salvos_postgres:5432/db_usuarios
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       sanos_y_salvos_postgres:
         condition: service_healthy
@@ -132,7 +132,7 @@ services:
       - "8082:8082"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://sanos_y_salvos_postgres:5432/db_adopciones
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       sanos_y_salvos_postgres:
         condition: service_healthy
@@ -148,7 +148,7 @@ services:
     ports:
       - "8083:8083"
     environment:
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -163,7 +163,7 @@ services:
       - "8084:8084"
     environment:
       - SPRING_DATA_REDIS_HOST=sanos_y_salvos_redis
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       sanos_y_salvos_redis:
         condition: service_healthy
@@ -180,7 +180,7 @@ services:
       - "8085:8085"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://sanos_y_salvos_postgres:5432/db_donaciones
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       sanos_y_salvos_postgres:
         condition: service_healthy
@@ -197,10 +197,10 @@ services:
       - "8086:8086"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://sanos_y_salvos_postgres:5432/db_mascotas
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       sanos_y_salvos_postgres:
-        condition: service_healthy # Espera a que el healthcheck de arriba pase
+        condition: service_healthy
       eureka-server:
         condition: service_healthy
     networks:
@@ -214,7 +214,7 @@ services:
       - "8087:8087"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://sanos_y_salvos_postgres:5432/db_historial
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       sanos_y_salvos_postgres:
         condition: service_healthy
@@ -231,7 +231,7 @@ services:
       - "8088:8088"
     environment:
       - SPRING_RABBITMQ_HOST=sanos_y_salvos_rabbitmq
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       sanos_y_salvos_rabbitmq:
         condition: service_healthy
@@ -247,7 +247,7 @@ services:
     ports:
       - "8089:8089"
     environment:
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -261,7 +261,7 @@ services:
     ports:
       - "8090:8090"
     environment:
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE=http://eureka-server:8761/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
       eureka-server:
         condition: service_healthy

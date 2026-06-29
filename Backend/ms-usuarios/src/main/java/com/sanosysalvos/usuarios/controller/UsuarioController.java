@@ -2,6 +2,7 @@ package com.sanosysalvos.usuarios.controller;
 
 import com.sanosysalvos.usuarios.model.Usuario;
 import com.sanosysalvos.usuarios.repository.UsuarioRepository;
+import com.sanosysalvos.usuarios.service.UsuarioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +15,12 @@ import java.util.Optional;
 public class UsuarioController {
 
     private final UsuarioRepository repository;
+    private final UsuarioService usuarioService; // 👈 Inyectamos el servicio transaccional
 
-    public UsuarioController(UsuarioRepository repository) {
+    // Constructor actualizado con ambas dependencias
+    public UsuarioController(UsuarioRepository repository, UsuarioService usuarioService) {
         this.repository = repository;
+        this.usuarioService = usuarioService;
     }
 
     @GetMapping("/listar")
@@ -26,7 +30,8 @@ public class UsuarioController {
 
     @PostMapping("/registrar")
     public Usuario crearUsuario(@RequestBody Usuario usuario) {
-        return repository.save(usuario);
+        // 🚨 CAMBIO CLAVE: Ahora pasa por el servicio para asegurar el guardado físico en la BD
+        return usuarioService.registrarUsuario(usuario);
     }
 
     @PostMapping("/login")

@@ -1,4 +1,5 @@
-const BASE_URL = "http://localhost:8080";
+// 🚨 CORREGIDO: Apuntar directo al puerto real de tu microservicio de usuarios
+const BASE_URL = "http://localhost:8081";
 
 export const apiFetch = async (endpoint, options = {}) => {
     const url = `${BASE_URL}${endpoint}`;
@@ -15,10 +16,15 @@ export const apiFetch = async (endpoint, options = {}) => {
         throw new Error(`Error en la petición: ${response.status} ${response.statusText}`);
     }
 
-    if (response.status === 200 || response.status === 201) {
-        return await response.json();
+    // Aceptamos cualquier respuesta exitosa en el rango 200-299
+    if (response.status >= 200 && response.status < 300) {
+        // Por si acaso el backend responde texto plano o un JSON estructurado
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            return await response.json();
+        }
+        return response;
     }
 
-    if (response.status === 204) return null;
     return response;
 };

@@ -1,6 +1,5 @@
 package com.sanosysalvos.notificaciones.consumer;
 
-import com.sanosysalvos.notificaciones.config.RabbitMQConfig;
 import com.sanosysalvos.notificaciones.model.Notificacion;
 import com.sanosysalvos.notificaciones.repository.NotificacionRepository;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -18,7 +17,7 @@ public class NotificacionConsumer {
 
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
-    @RabbitListener(queues = RabbitMQConfig.QUEUE_NOTIFICACIONES)
+    @RabbitListener(queues = "notificaciones.login")
     public void consumirMensajeAsincrono(String textoMensaje) {
         System.out.println(" Payload capturado desde el bus de RabbitMQ: " + textoMensaje);
 
@@ -29,7 +28,7 @@ public class NotificacionConsumer {
         Notificacion notificacion = new Notificacion();
         notificacion.setOrigen("RabbitMQ Broker");
         notificacion.setMensaje(textoMensaje);
-        notificacion.setTime(horaActual);
+        notificacion.setFecha(horaActual);
 
         repository.save(notificacion);
     }
