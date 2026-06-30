@@ -1,3 +1,4 @@
+import 'leaflet/dist/leaflet.css';
 import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Heart, Shield, Sparkles, PawPrint, HandHeart, MapPin } from "lucide-react";
